@@ -1,0 +1,84 @@
+CREATE DATABASE locadora;
+USE locadora;
+
+CREATE TABLE tbfuncionarios 
+(
+	mat_func INT AUTO_INCREMENT PRIMARY KEY,
+	nome VARCHAR (50),
+	cpf VARCHAR(14),
+	email VARCHAR(60),
+	telefone VARCHAR(20)
+);
+
+CREATE TABLE tbdependentes
+(
+	id_dep INT AUTO_INCREMENT PRIMARY KEY,
+	nome VARCHAR (50),
+	cpf VARCHAR(14),
+	fK_mat_func INT,
+	CONSTRAINT fk_mat_func FOREIGN KEY( fk_mat_func ) REFERENCES tbfuncionarios(mat_func)
+);
+
+CREATE TABLE tbfornecedor 
+(
+	cnpj VARCHAR(25) PRIMARY KEY,
+	razaosocial VARCHAR(100) NOT NULL,
+	nomefantasia VARCHAR(60),
+	telefone VARCHAR(14),
+	whatsapp VARCHAR(14),
+	email VARCHAR(60)
+);
+
+
+CREATE TABLE tbclientes
+(
+	id_cli INT AUTO_INCREMENT PRIMARY KEY,
+	email VARCHAR(60),
+	telefone VARCHAR(20),
+	endereco VARCHAR(30)
+);
+
+CREATE TABLE tbfilme (
+  id_filme INT AUTO_INCREMENT PRIMARY KEY ,
+  titulo VARCHAR(40) ,
+  sinopse VARCHAR(100),
+  quantidade INT,
+  valor_filme DECIMAL(10,2),
+  taxa_dia DECIMAL(10,2),
+  classificacao varchar(10),
+  genero VARCHAR(50) 
+
+);
+CREATE TABLE tbfilme_Locado (
+  id_filme_locado INT AUTO_INCREMENT PRIMARY KEY,
+  data_locacao DATE,
+  data_limite DATE,
+  fk_id_cli INT,
+  fk_id_filme INT,
+  FOREIGN KEY (fk_id_cli) REFERENCES tbclientes (id_cli),
+  FOREIGN KEY (fk_id_filme) REFERENCES tbfilme (id_filme)
+);
+
+CREATE TABLE tbvendafilmes (
+  id_vendafilmes INT PRIMARY KEY,
+  total DECIMAL(10,2),
+  subtotal DECIMAL(10,2) 
+);
+
+CREATE TABLE filme_locado (
+  id_filme_locado INT PRIMARY KEY,
+  data_locacao DATE,
+  data_limite DATE,
+  fk_id_cli INT,
+  fk_id_filme INT,
+  fk_id_vendafilmes INT,
+  FOREIGN KEY (fk_id_cli) REFERENCES tbclientes (id_cli),
+  FOREIGN KEY (fk_id_filme) REFERENCES tbfilme (id_filme),
+  FOREIGN KEY (fk_id_vendafilmes) REFERENCES tbvendafilmes (id_vendafilmes)
+);
+
+
+
+
+
+
