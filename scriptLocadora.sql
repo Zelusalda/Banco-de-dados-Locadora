@@ -67,9 +67,10 @@ CREATE TABLE
         id_filme_locado INT PRIMARY KEY AUTO_INCREMENT,
         data_locacao DATETIME,
         data_limite DATETIME,
+        estado ENUM ('Atrasado', 'Devolvido', 'Locando'), /* Pra ver o status do filme locado */
         fk_id_cli INT,
         fk_id_filme INT,
-        fk_id_vendafilmes INT,
+        -- fk_id_vendafilmes INT,
         FOREIGN KEY (fk_id_cli) REFERENCES tbclientes (id_cli),
         FOREIGN KEY (fk_id_filme) REFERENCES tbfilme (id_filme)
         -- FOREIGN KEY (fk_id_vendafilmes) REFERENCES tbvendafilmes (id_vendafilmes)
@@ -232,11 +233,18 @@ INSERT INTO
     tbfilme_locado(
         data_locacao,
         data_limite,
+        estado,
         fk_id_cli,
-        fk_id_filme,
-        fk_id_vendafilmes
+        fk_id_filme
+        -- fk_id_vendafilmes
     )
-VALUES (), (), ();
+VALUES 
+	('2023-05-03 13:20:00', '2023-05-05 13:20:00', 'Devolvido', '2', '1'), 
+	('2023-12-09 16:31:00', '2023-12-11 16:31:00', 'Locando', '1', '3'), 
+	('2023-11-30 18:11:00', '2023-12-02 18:11:00', 'Atrasado', '2', '1'),
+	('2022-10-31 17:02:00', '2023-11-02 17:02:00', 'Devolvido', '3', '2'),
+	('2023-12-08 17:15:00', '2023-12-10 17:15:00', 'Locando', '3', '3'),
+	('2023-12-05 14:34:00', '2023-12-07 14:34:00', 'Atrasado', '1', '2');
 
 /* SELECTS GERAIS */
 SELECT * FROM tbfuncionarios;
@@ -249,19 +257,15 @@ SELECT * FROM tbvendafilmes;
 
 
 /* Ordenar filmes em estoque do menor preço para o maior (ORDENAÇÃO CRESCENTE)*/
-
 SELECT valor_filme FROM tbfilme ORDER BY valor_filme ASC;
 
 /* Ordenar filmes da maior quantidade de estoque para a menor (ORDENAÇÃO DECRESCENTE)*/
-
 SELECT quantidade FROM tbfilme ORDER BY quantidade DESC;
 
 /* Consulta que contenha agrupamento */
-
 /* A FAZER */
 
 /* Ver funcionários matriculados em um espaço de 3 anos (CONSULTA BETWEEN)*/
-
 SELECT *
 FROM tbfuncionarios
 WHERE
@@ -269,11 +273,20 @@ WHERE
 ORDER BY data_matricula;
 
 /* Ver clientes cadastrados que moram em Salvador (CONSULTA IN)*/
-
 SELECT * FROM tbclientes WHERE endereco IN ('Salvador');
 
 /* View que mostra todas as locações de filme que já passaram da data de devolução,
- exibindo data de locação, data limite, id do cliente que locou e seu CPF (VIEW NECESSÁRIA) */
+ exibindo data de locação, data limite e o id do cliente que locou (VIEW NECESSÁRIA) */
+ CREATE VIEW FilmesAtrasados AS
+ SELECT 
+	id_filme_locado,
+    date(data_locacao) as 'Data de Locação',
+    date(data_limite) as 'Data Limite',
+    fk_id_cli as 'Id Cliente'
+FROM tbfilme_locado
+WHERE data_limite >= now();
+
+SELECT * FROM FilmesAtrasados;
 
 
 
