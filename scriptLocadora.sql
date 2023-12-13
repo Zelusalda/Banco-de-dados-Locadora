@@ -3,48 +3,70 @@ CREATE DATABASE locadora;
 USE locadora;
 
 /* CREATE TABLES */
+
+CREATE TABLE tbendereco(
+	id_endereco INT auto_increment primary key,
+    CEP varchar(10),
+    endereco varchar(100),
+    numero INT,
+    bairro varchar(50),
+    cidade varchar(25),
+    estado varchar(2) default 'BA',
+    pais varchar(20) default 'Brasil'
+);
+
+
 CREATE TABLE
     tbfuncionarios (
         mat_func INT AUTO_INCREMENT PRIMARY KEY,
         nome VARCHAR (50),
-        cpf VARCHAR(14),
+        CPF VARCHAR(14),
         email VARCHAR(60),
         telefone VARCHAR(20),
-        data_matricula DATE
+        data_matricula DATE,
+        fk_id_endereco INT,
+        FOREIGN KEY (fk_id_endereco) references tbendereco(id_endereco)
     );
-CREATE TABLE
-    tbdependentes (
-        id_dep INT AUTO_INCREMENT PRIMARY KEY,
-        nome VARCHAR (50),
-        cpf VARCHAR(14),
-        fK_mat_func INT,
-        CONSTRAINT fk_mat_func FOREIGN KEY(fk_mat_func) REFERENCES tbfuncionarios(mat_func)
-    );
+
+-- CREATE TABLE
+--     tbdependentes (
+--         id_dep INT AUTO_INCREMENT PRIMARY KEY,
+--         nome VARCHAR (50),
+--         cpf VARCHAR(14),
+--         fK_mat_func INT,
+--         CONSTRAINT fk_mat_func FOREIGN KEY(fk_mat_func) REFERENCES tbfuncionarios(mat_func)
+--     );
 
 CREATE TABLE
     tbfornecedor (
-        cnpj VARCHAR(25) PRIMARY KEY,
-        razaosocial VARCHAR(100) NOT NULL,
-        nomefantasia VARCHAR(60),
+		id_fornecedor INT AUTO_INCREMENT PRIMARY KEY,
+        CNPJ VARCHAR(25) UNIQUE,
+        razao_social VARCHAR(100) NOT NULL,
+        nome_fantasia VARCHAR(60),
         telefone VARCHAR(14),
         whatsapp VARCHAR(14),
-        email VARCHAR(60)
+        email VARCHAR(60),
+        ramal INT,
+        site VARCHAR(140),
+		fk_id_endereco INT,
+        FOREIGN KEY (fk_id_endereco) references tbendereco(id_endereco)
     );
 
 CREATE TABLE
     tbclientes (
-        id_cli INT AUTO_INCREMENT PRIMARY KEY,
+        id_cliente INT AUTO_INCREMENT PRIMARY KEY,
         nome VARCHAR(50),
-        cpf VARCHAR(14),
+        CPF VARCHAR(14),
         email VARCHAR(60),
         telefone VARCHAR(20),
-        endereco VARCHAR(30)
+		fk_id_endereco INT,
+        FOREIGN KEY (fk_id_endereco) references tbendereco(id_endereco)
     );
 
 CREATE TABLE
     tbfilme (
         id_filme INT AUTO_INCREMENT PRIMARY KEY,
-        fk_cnpj VARCHAR(25),
+        fk_id_fornecedor VARCHAR(25),
         titulo VARCHAR(40),
         sinopse VARCHAR(100),
         quantidade INT,
@@ -52,7 +74,7 @@ CREATE TABLE
         taxa_dia DECIMAL(10, 2),
         classificacao varchar(10),
         genero VARCHAR(50),
-        FOREIGN KEY (fk_cnpj) REFERENCES tbfornecedor (cnpj)
+        FOREIGN KEY (fk_id_fornecedor) REFERENCES tbfornecedor (id_fornecedor)
 );
 
 -- CREATE TABLE
@@ -65,22 +87,22 @@ CREATE TABLE
 CREATE TABLE
     tblocacoes(
         id_locacao INT auto_increment PRIMARY KEY,
-        fk_id_cli INT,
+        fk_id_cliente INT,
         fk_id_filme INT,
         data_locacao DATETIME,
         data_limite DATETIME,
         status_locacao ENUM('Atrasado','Devolvido','Locando') DEFAULT 'Locando',
         total_locacao DECIMAL(10,2),
-        FOREIGN KEY (fk_id_cli) REFERENCES tbclientes (id_cli),
+        FOREIGN KEY (fk_id_cliente) REFERENCES tbclientes (id_cliente),
         FOREIGN KEY (fk_id_filme) REFERENCES tbfilme (id_filme)
 );
 
 CREATE TABLE
     tbitenslocacao(
-        id_locacao INT PRIMARY KEY,
+        fk_id_locacao INT,
         quantidade_filme INT,
         subtotal DECIMAL(10,2),
-        FOREIGN KEY (id_locacao) REFERENCES tblocacoes(id_locacao)
+        FOREIGN KEY (fk_id_locacao) REFERENCES tblocacoes(id_locacao)
     );
 
 
