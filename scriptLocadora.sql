@@ -1,4 +1,4 @@
--- Active: 1700955922591@@127.0.0.1@3306@locadora
+-- Active: 1697565397734@@127.0.0.1@3306@locadora
 CREATE DATABASE locadora;
 USE locadora;
 
@@ -55,26 +55,47 @@ CREATE TABLE
         FOREIGN KEY (fk_cnpj) REFERENCES tbfornecedor (cnpj)
 );
 
-CREATE TABLE
-    tbvendafilmes (
-        id_vendafilmes INT PRIMARY KEY,
-        total DECIMAL(10, 2),
-        subtotal DECIMAL(10, 2)
-    );
+-- CREATE TABLE
+--     tbvendafilmes (
+--         id_vendafilmes INT PRIMARY KEY,
+--         total DECIMAL(10, 2),
+--         subtotal DECIMAL(10, 2)
+--     );
 
 CREATE TABLE
-    tbfilme_locado (
-        id_filme_locado INT PRIMARY KEY AUTO_INCREMENT,
-        data_locacao DATETIME,
-        data_limite DATETIME,
-        estado ENUM ('Atrasado', 'Devolvido', 'Locando'), /* Pra ver o status do filme locado */
+    tblocacoes(
+        id_locacao INT auto_increment PRIMARY KEY,
         fk_id_cli INT,
         fk_id_filme INT,
-        -- fk_id_vendafilmes INT,
+        data_locacao DATETIME,
+        data_limite DATETIME,
+        status_locacao ENUM('Atrasado','Devolvido','Locando') DEFAULT 'Locando',
+        total_locacao DECIMAL(10,2),
         FOREIGN KEY (fk_id_cli) REFERENCES tbclientes (id_cli),
         FOREIGN KEY (fk_id_filme) REFERENCES tbfilme (id_filme)
-        -- FOREIGN KEY (fk_id_vendafilmes) REFERENCES tbvendafilmes (id_vendafilmes)
+);
+
+CREATE TABLE
+    tbitenslocacao(
+        id_locacao INT PRIMARY KEY,
+        quantidade_filme INT,
+        subtotal DECIMAL(10,2),
+        FOREIGN KEY (id_locacao) REFERENCES tblocacoes(id_locacao)
     );
+
+
+-- CREATE TABLE
+--     tbfilme_locado (
+--         id_filme_locado INT PRIMARY KEY AUTO_INCREMENT,
+--         data_locacao DATETIME,
+--         data_limite DATETIME,
+--         estado ENUM ('Atrasado', 'Devolvido', 'Locando'), /* Pra ver o status do filme locado */
+--         fk_id_cli INT,
+--         fk_id_filme INT,
+--         FOREIGN KEY (fk_id_cli) REFERENCES tbclientes (id_cli),
+--         FOREIGN KEY (fk_id_filme) REFERENCES tbfilme (id_filme)
+--     );
+
 
 
 /* INSERTS */
@@ -117,7 +138,14 @@ VALUES
         'zeludaoslk@gmail.com',
         '71998140738',
         '2023-11-08'
-    );
+    ),
+    ('Mariana Senna',
+        '45632145699',
+        'marinasenna22@gmail.com',
+        '71985652311',
+        '2018-05-06');
+    
+
 
 INSERT INTO
     tbdependentes(nome, cpf, fk_mat_func)
@@ -230,30 +258,39 @@ VALUES
     );
 
 INSERT INTO
-    tbfilme_locado(
+    tblocacoes(
         data_locacao,
-        data_limite,
-        estado,
         fk_id_cli,
         fk_id_filme
-        -- fk_id_vendafilmes
     )
 VALUES 
-	('2023-05-03 13:20:00', '2023-05-05 13:20:00', 'Devolvido', '2', '1'), 
-	('2023-12-09 16:31:00', '2023-12-11 16:31:00', 'Locando', '1', '3'), 
-	('2023-11-30 18:11:00', '2023-12-02 18:11:00', 'Atrasado', '2', '1'),
-	('2022-10-31 17:02:00', '2023-11-02 17:02:00', 'Devolvido', '3', '2'),
-	('2023-12-08 17:15:00', '2023-12-10 17:15:00', 'Locando', '3', '3'),
-	('2023-12-05 14:34:00', '2023-12-07 14:34:00', 'Atrasado', '1', '2');
+	(curdate(),2, 1), 
+	(curdate(),1, 3), 
+	(curdate(),2, 1),
+	(curdate(),3, 2),
+	(curdate(), 3,2),
+	(curdate(),1, 2);
 
-/* SELECTS GERAIS */
+INSERT INTO
+	tbitenslocacao(id_locacao,quantidade_filme)
+    VALUES
+    (1,1),
+    (2,1),
+    (3,1),
+    (4,1),
+    (5,1),
+    (6,1);
+
+
+
+-- SELECTS GERAIS
 SELECT * FROM tbfuncionarios;
 SELECT * FROM tbdependentes;
 SELECT * FROM tbclientes;
 SELECT * FROM tbfilme;
-SELECT * FROM tbfilme_locado;
+SELECT * FROM tblocacoes;
 SELECT * FROM tbfornecedor;
-SELECT * FROM tbvendafilmes;
+SELECT * FROM tbitenslocacao;
 
 
 /* Ordenar filmes em estoque do menor preço para o maior (ORDENAÇÃO CRESCENTE)*/
@@ -279,17 +316,24 @@ SELECT * FROM tbclientes WHERE endereco IN ('Salvador');
  exibindo data de locação, data limite e o id do cliente que locou (VIEW NECESSÁRIA) */
  CREATE VIEW FilmesAtrasados AS
  SELECT 
-	id_filme_locado,
+	id_locacao,
     date(data_locacao) as 'Data de Locação',
     date(data_limite) as 'Data Limite',
     fk_id_cli as 'Id Cliente'
-FROM tbfilme_locado
+FROM tblocacoes
 WHERE data_limite >= now();
 
 SELECT * FROM FilmesAtrasados;
 
+-- atualizo data limite
+-- armazeno data limite
+-- atualizo status como atrasado onde data agora for maior que data limite
+-- atualizo status como devolvido manualmente 
+-- atualizado status locando como padrão
+
 
 /* PROCEDURE DE ENTRADA/INPUT */
+DELIMITER //
 CREATE PROCEDURE InserirFuncionario(
     IN p_nome VARCHAR(50),
     IN p_cpf VARCHAR(14),
@@ -299,9 +343,10 @@ CREATE PROCEDURE InserirFuncionario(
 )
 BEGIN
     INSERT INTO tbfuncionarios(nome, cpf, email, telefone, data_matricula)
-    VALUES (p_nome, p_cpf, p_email, p_telefone, p_data_matricula);
+    VALUES (p_nome, p_cpf, p_email, p_telefone, p_data_matricula)
 END;
 
+Inserir
 
 /* PROCEDURE DE SAÍDA/OUTPUT */
 CREATE PROCEDURE ObterFilmesLocados(
@@ -360,10 +405,13 @@ BEGIN
     WHERE id_filme = NEW.fk_id_filme;
 END;
 
+-- TRIGGER PARA ATUALIZAR TOTAL LOCAÇÃO
+
+-- TRIGGER PARA ATUALIZAR DATA LIMITE LOCAÇÃO
 
 
 
-
+DELIMITER ;
 
 /* DANGER ZONE */
 
@@ -373,15 +421,15 @@ END;
 -- DROP TABLE tbdependentes;
 -- DROP TABLE tbclientes;
 -- DROP TABLE tbfilme;
--- DROP TABLE tbfilme_locado;
+-- DROP TABLE tblocacoes;
 -- DROP TABLE tbfornecedor;
--- DROP TABLE tbvendafilmes;
+-- DROP TABLE tbitenslocacao;
 
 /* DELETE */
 -- DELETE FROM tbfuncionarios;
 -- DELETE FROM tbdependentes;
 -- DELETE FROM tbclientes;
 -- DELETE FROM tbfilme;
--- DELETE FROM tbfilme_locado;
+-- DELETE FROM tblocacoes;
 -- DELETE FROM tbfornecedor;
 -- DELETE FROM tbvendafilmes;
