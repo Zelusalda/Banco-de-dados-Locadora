@@ -57,8 +57,8 @@ CREATE TABLE
     tbfilme (
         id_filme INT AUTO_INCREMENT PRIMARY KEY,
         fk_id_fornecedor INT,
-        titulo VARCHAR(40),
-        sinopse VARCHAR(100),
+        titulo VARCHAR(100),
+        sinopse VARCHAR(280),
         quantidade INT,
         valor_filme DECIMAL(10, 2),
         taxa_dia DECIMAL(10, 2),
@@ -66,7 +66,6 @@ CREATE TABLE
         genero VARCHAR(50),
         FOREIGN KEY (fk_id_fornecedor) REFERENCES tbfornecedor (id_fornecedor)
 );
-
 
 CREATE TABLE
     tblocacoes(
@@ -105,13 +104,26 @@ CREATE TABLE
 
 
 /* INSERTS */
+INSERT INTO `locadora`.`tbendereco` (`CEP`, `endereco`, `numero`, `bairro`, `cidade`, `estado`, `pais`) 
+VALUES ('45632-650', 'Rua dos Jardineiros', '22', 'Hiberin', 'Guandi', 'RE', 'Angola'),
+('56899-780', 'Rua dos Talismãs', '12', 'Pituba', 'Salvador', 'BA', 'Brasil'),
+('15935-741', 'Avenida Liomar Segundo', '9', 'Rio Vermelho', 'Salvador', 'BA', 'Brasil'),
+('35785-685', 'Avenida Jefferson Salgueiro', '22', 'Mussurunga', 'Salvador', 'BA', 'Brasil'),
+('35795-850', 'Rua Pastor Aldemar Santos', '35', 'Pitangas', 'Feira de Santana', 'BA', 'Brasil'),
+('65423-556', 'Rua Miguel Lancelo Dutra', '40', 'Pitangas', 'Feira de Santana', 'BA', 'Brasil'),
+('78423-855', 'Rua Vereador Pascal Lima', '22', 'Limoeiro', 'Feira de Santana', 'BA', 'Brasil'),
+('12345-678', 'Rua das Flores', '123', 'Centro', 'São Paulo', 'SP', 'Brasil'),
+('98765-432', 'Avenida dos Pássaros', '456', 'Copacabana', 'Rio de Janeiro', 'RJ', 'Brasil'),
+('54321-876', 'Alameda das Árvores', '789', 'Copacabana', 'Rio de Janeiro', 'RJ', 'Brasil');
+
 INSERT INTO
     tbfuncionarios(
         nome,
         cpf,
         email,
         telefone,
-        data_matricula
+        data_matricula,
+        fk_id_endereco
     )
 VALUES
 (
@@ -119,56 +131,57 @@ VALUES
         '06586788404',
         'edcosta607@gmail.com',
         '71997130234',
-        '2018-03-21'
+        '2018-03-21',
+        1
     ), (
         'Alexandre',
         '47896798416',
         'buxexafrancis@gmail.com',
         '71997831397',
-        '2022-10-08'
+        '2022-10-08',
+        2
     ), (
         'João',
         '97745789418',
         'tijolo007@gmail.com',
         '71887900235',
-        '2020-12-11'
+        '2020-12-11',
+        3
     ), (
         'Isabel',
         '22779988407',
         'isagod004@gmail.com',
         '71987167236',
-        '2019-03-15'
+        '2019-03-15',
+        4
     ), (
         'José',
         '12586788435',
         'zeludaoslk@gmail.com',
         '71998140738',
-        '2023-11-08'
+        '2023-11-08',
+        5
     ),
     ('Mariana Senna',
         '45632145699',
         'marinasenna22@gmail.com',
         '71985652311',
-        '2018-05-06');
+        '2018-05-06',
+        6
+	);
     
-
-
-INSERT INTO
-    tbdependentes(nome, cpf, fk_mat_func)
-VALUES (
-        "José filho",
-        "06678590054",
-        "5"
-    ), ("Eloá", "06584788504", "1"), ("Anderson", "77794687635", "3");
 
 INSERT INTO
     tbfornecedor(
-        cnpj,
-        razaosocial,
-        nomefantasia,
+        CNPJ,
+        razao_social,
+        nome_fantasia,
         telefone,
         whatsapp,
-        email
+        email,
+        ramal,
+        site,
+        fk_id_endereco
     )
 VALUES
 (
@@ -177,55 +190,64 @@ VALUES
         'Paramount',
         '36067897',
         '071988459887',
-        'paramountbr@gmail.com'
+        'paramountbr@gmail.com',
+        45,
+        'www.paramount.com.br',
+        7
     ), (
         '73.042.962/0001-87',
         'THE WALT DISNEY COMPANY (BRASIL) LTDA',
         ' Walt Disney',
         '44445555',
         '0719974596867',
-        'disneyBr@gmail.com'
+        'disneyBr@gmail.com',
+        21,
+        'www.waltdisney.com.br',
+        8
     ), (
         '06.152.891/0001-88',
         'WARNER BROS. ENTRETENIMENTO BRASIL LTDA.',
         ' Warner Bros',
         '78789696',
         '0759977594423',
-        '@warnerBrosBR@gmail.com'
+        '@warnerBrosBR@gmail.com',
+        80,
+        'www.warnerbros.com.br',
+        9
     );
 
 INSERT INTO
     tbclientes(
         nome,
-        cpf,
+        CPF,
         email,
         telefone,
-        endereco
+        fk_id_endereco
     )
 VALUES (
         "João Neto",
         "45230585",
         "joaoneto2023@gmail.com",
         "(71)98885-6563",
-        "Candeias"
+        2
     ), (
         "Maria Barbosa",
         "30250275",
         "mariabarbosa2023@gmail.com",
         "(71)98877-6563",
-        "Lauro de Freitas"
+        3
     ), (
         "Juarez Fernandes",
         "60230295",
         "juarezfernandes2023@gmail.com",
         "(71)98888-7777",
-        "Salvador"
+        4
     );
 
 INSERT INTO
     tbfilme (
         titulo,
-        fk_cnpj,
+        fk_id_fornecedor,
         sinopse,
         quantidade,
         valor_filme,
@@ -236,7 +258,7 @@ INSERT INTO
 VALUES
 (
         'Carros 2',
-        '73.042.962/0001-87',
+        1,
         'Um carro de corrida muito louco',
         '10',
         '15.00',
@@ -245,7 +267,7 @@ VALUES
         'Infantil'
     ), (
         'Panico 5',
-        '27.654.722/0001-16',
+        2,
         'homem que mata muita gente por puro prazer ',
         '20',
         '15.50',
@@ -254,19 +276,42 @@ VALUES
         'Terror'
     ), (
         'Indiana Jones 2',
-        '73.042.962/0001-87',
+        3,
         'Um aventureiro curioso leva seus amigos para uma nova descoberta',
         '25',
         '25.50',
         '3.90',
         '14',
         'Aventura'
-    );
+    ),
+('3', 
+'Harry Potter e A Pedra Filosofal', 
+'Harry Potter descobre que é um bruxo e ingressa na Escola de Magia e Bruxaria de Hogwarts.',
+ '30', 
+ '24.90', 
+ '2.80', 
+ 'Livre', 
+ 'Fantasia'),
+('3', 'Harry Potter and the Goblet of Fire',
+ 'Harry é selecionado inesperadamente para competir no Torneio Tribruxo',
+ '20',
+ '24.90',
+ '2.80',
+ '12', 
+ 'Fantasia'),
+('3', 'Harry Potter and the Order of the Phoenix',
+ 'Harry enfrenta a indiferença do Ministério da Magia e forma a Ordem da Fênix para enfrentar o retorno de Lord Voldemort.', 
+ '20',
+ '24.90',
+ '2.80',
+ '12',
+ 'Fantasia');
+    
 
 INSERT INTO
     tblocacoes(
         data_locacao,
-        fk_id_cli,
+        fk_id_cliente,
         fk_id_filme
     )
 VALUES 
@@ -278,7 +323,7 @@ VALUES
 	(curdate(),1, 2);
 
 INSERT INTO
-	tbitenslocacao(id_locacao,quantidade_filme)
+	tbitenslocacao(fk_id_locacao,quantidade_filme)
     VALUES
     (1,1),
     (2,1),
@@ -290,8 +335,8 @@ INSERT INTO
 
 
 -- SELECTS GERAIS
+SELECT * FROM tbendereco;
 SELECT * FROM tbfuncionarios;
-SELECT * FROM tbdependentes;
 SELECT * FROM tbclientes;
 SELECT * FROM tbfilme;
 SELECT * FROM tblocacoes;
@@ -415,6 +460,7 @@ END;
 
 -- TRIGGER PARA ATUALIZAR DATA LIMITE LOCAÇÃO
 
+-- procedure para atualizar statusl locação
 
 
 DELIMITER ;
