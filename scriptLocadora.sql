@@ -381,61 +381,43 @@ CREATE PROCEDURE InserirFuncionario(
     IN p_cpf VARCHAR(14),
     IN p_email VARCHAR(60),
     IN p_telefone VARCHAR(20),
-    IN p_data_matricula DATE
+    IN p_data_matricula DATE,
+    IN p_fk_id_endereco INT
 )
 BEGIN
-    INSERT INTO tbfuncionarios(nome, cpf, email, telefone, data_matricula)
-    VALUES (p_nome, p_cpf, p_email, p_telefone, p_data_matricula)
+    INSERT INTO tbfuncionarios(nome, cpf, email, telefone, data_matricula,p_fk_id_endereco)
+    VALUES (p_nome, p_cpf, p_email, p_telefone, p_data_matricula,p_fk_id_endereco)
 END;
-
-Inserir
 
 /* PROCEDURE DE SAÍDA/OUTPUT */
 CREATE PROCEDURE ObterFilmesLocados(
-    OUT p_id_filme_locado INT,
+    OUT p_id_locacao INT,
     OUT p_data_locacao DATETIME,
     OUT p_data_limite DATETIME,
-    OUT p_estado ENUM('Atrasado', 'Devolvido', 'Locando'),
+    OUT p_status_locacao ENUM('Atrasado', 'Devolvido', 'Locando'),
     OUT p_fk_id_cli INT,
-    OUT p_fk_id_filme INT
+    OUT p_fk_id_filme INT,
+    OUT total_locacao DECIMAL(10,2)
 )
 BEGIN
     SELECT
-        id_filme_locado,
+		id_locacao,
         data_locacao,
         data_limite,
-        estado,
+        status_locacao,
         fk_id_cli,
-        fk_id_filme
+        fk_id_filme,
+        total_locacao
     INTO
-        p_id_filme_locado,
+        p_id_locacao,
         p_data_locacao,
         p_data_limite,
-        p_estado,
+        p_status_locacao,
         p_fk_id_cli,
-        p_fk_id_filme
-    FROM tbfilme_locado;
+        p_fk_id_filme,
+        total_locacao
+    FROM tblocacoes;
 END;
-
--- VARIÁVEIS
-DECLARE id_locacao INT;
-DECLARE data_locacao DATETIME;
-DECLARE data_limite DATETIME;
-DECLARE estado ENUM('Atrasado', 'Devolvido', 'Locando');
-DECLARE id_cliente INT;
-DECLARE id_filme INT;
-
-CALL ObterFilmesLocados(
-    OUT id_locacao,
-    OUT data_locacao,
-    OUT data_limite,
-    OUT estado,
-    OUT id_cliente,
-    OUT id_filme
-);
-
-SELECT id_locacao, data_locacao, data_limite, estado, id_cliente, id_filme;
-
 
 /* TRIGGER PARA ATUALIZAR ESTOQUE DE FILMES PÓS LOCAÇÃO */
 CREATE TRIGGER AttQuantidadeFilmeLocado
@@ -447,14 +429,41 @@ BEGIN
     WHERE id_filme = NEW.fk_id_filme;
 END;
 
+-- A FAZER
 -- TRIGGER PARA ATUALIZAR TOTAL LOCAÇÃO
 
 -- TRIGGER PARA ATUALIZAR DATA LIMITE LOCAÇÃO
 
--- procedure para atualizar statusl locação
+-- procedure para atualizar status locação
+
+-- EXECUÇÃO PROCEDURES
+-- VARIÁVEIS
+DECLARE id_locacao INT;
+DECLARE data_locacao DATETIME;
+DECLARE data_limite DATETIME;
+DECLARE status_locacao ENUM('Atrasado', 'Devolvido', 'Locando');
+DECLARE id_cliente INT;
+DECLARE id_filme INT;
+
+CALL ObterFilmesLocados(
+    OUT id_locacao,
+    OUT data_locacao,
+    OUT data_limite,
+    OUT status_locacao,
+    OUT id_cliente,
+    OUT id_filme
+);
+
+SELECT id_locacao, data_locacao, data_limite, status_locacao, id_cliente, id_filme;
+
 
 
 DELIMITER ;
+
+
+
+
+
 
 /* DANGER ZONE */
 
