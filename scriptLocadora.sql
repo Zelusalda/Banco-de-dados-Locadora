@@ -305,7 +305,15 @@ VALUES
  '24.90',
  '2.80',
  '12',
+ 'Fantasia'),
+('2', 'Harry Potter and the Half-Blood Prince',
+ 'Harry descobre segredos sobre o passado de Voldemort enquanto Hogwarts se prepara para a batalha iminente entre as forças do bem e do mal.',
+ '20',
+ '24.90',
+ '2.80',
+ '10',
  'Fantasia');
+
     
 
 INSERT INTO
@@ -315,12 +323,14 @@ INSERT INTO
         fk_id_filme
     )
 VALUES 
-	(curdate(),2, 1), 
-	(curdate(),1, 3), 
-	(curdate(),2, 1),
-	(curdate(),3, 2),
-	(curdate(), 3,2),
-	(curdate(),1, 2);
+	(current_timestamp(),2, 1), 
+	(current_timestamp(),1, 3), 
+	(current_timestamp(),2, 1),
+	(current_timestamp(),3, 2),
+	(current_timestamp(), 3,2),
+	(current_timestamp(),1, 2),
+    (current_timestamp(),1, 11);
+
 
 INSERT INTO
 	tbitenslocacao(fk_id_locacao,quantidade_filme)
@@ -455,9 +465,8 @@ DELIMITER ;
 
 -- TRIGGER PARA ATUALIZAR DATA LIMITE LOCAÇÃO
 
--- procedure para atualizar status locação
-
 -- view que apresenta endereço dos clientes, funcionários e fornecedores
+
 
 -- EXECUÇÃO PROCEDURES
 
@@ -490,13 +499,6 @@ CALL ObterFilmesLocadosPorID(
     @total_locacao
 );
 SELECT @data_locacao, @data_limite, @status_locacao, @id_cliente, @id_filme, @total_locacao;
-
-
-
-
-
-
-DROP PROCEDURE ObterFilmesLocadosPorId;
 
 
 
