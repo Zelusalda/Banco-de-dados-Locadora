@@ -496,7 +496,10 @@ SELECT valor_filme FROM tbfilme ORDER BY valor_filme ASC;
 SELECT quantidade FROM tbfilme ORDER BY quantidade DESC;
 
 /* Consulta que contenha agrupamento */
-/* A FAZER */
+/* Apresenta quantidade de filmes por gênero*/
+SELECT genero, COUNT(*) AS quantidade_filmes
+FROM tbfilme
+GROUP BY genero;
 
 /* Ver funcionários matriculados em um espaço de 3 anos (CONSULTA BETWEEN)*/
 SELECT *
@@ -507,6 +510,8 @@ ORDER BY data_matricula;
 
 /* Ver filmes do genêro fantasia (CONSULTA IN)*/
 SELECT * FROM tbfilme WHERE genero IN ('Fantasia');
+
+/* VIEWS */
 
 /* View que mostra todas as locações de filme que já passaram da data de devolução,
  exibindo data de locação, data limite e o id do cliente que locou (VIEW NECESSÁRIA) */
@@ -521,11 +526,69 @@ WHERE data_limite >= now();
 
 SELECT * FROM FilmesAtrasados;
 
+/* ENDEREÇOS DOS CLIENTES */
+CREATE VIEW ViewEnderecosClientes AS
+SELECT
+    c.id_cliente,
+    c.nome AS nome_cliente,
+    c.CPF,
+    c.email,
+    c.telefone,
+    e.CEP,
+    e.endereco,
+    e.numero,
+    e.bairro,
+    e.cidade,
+    e.estado,
+    e.pais
+FROM tbclientes c
+JOIN tbendereco e ON c.fk_id_endereco = e.id_endereco;
 
--- A FAZER
--- view que apresenta endereço dos clientes, funcionários e fornecedores
+SELECT * FROM ViewEnderecosClientes;
 
+/*ENDEREÇO DOS FUNCIONÁRIOS */
+CREATE VIEW ViewEnderecosFuncionarios AS
+SELECT
+    f.mat_func,
+    f.nome AS nome_funcionario,
+    f.CPF,
+    f.email,
+    f.telefone,
+    e.CEP,
+    e.endereco,
+    e.numero,
+    e.bairro,
+    e.cidade,
+    e.estado,
+    e.pais
+FROM tbfuncionarios f
+JOIN tbendereco e ON f.fk_id_endereco = e.id_endereco;
 
+SELECT * FROM ViewEnderecosFuncionarios;
+
+/* ENDEREÇO DOS FORNECEDORES */
+CREATE VIEW ViewEnderecosFornecedores AS
+SELECT
+    fr.id_fornecedor,
+    fr.razao_social AS nome_fornecedor,
+    fr.CNPJ,
+    fr.nome_fantasia,
+    fr.telefone,
+    fr.whatsapp,
+    fr.email,
+    fr.ramal,
+    fr.site,
+    e.CEP,
+    e.endereco,
+    e.numero,
+    e.bairro,
+    e.cidade,
+    e.estado,
+    e.pais
+FROM tbfornecedor fr
+JOIN tbendereco e ON fr.fk_id_endereco = e.id_endereco;
+
+SELECT * FROM ViewEnderecosFornecedores;
 
 -- EXECUÇÃO PROCEDURES
 
@@ -574,12 +637,6 @@ SELECT @data_locacao, @data_limite, @status_locacao, @id_cliente, @id_filme, @to
 -- DELETE FROM tbfuncionarios;
 -- DELETE FROM tbclientes;
 -- DELETE FROM tbfilme;
---- DELETE FROM tblocacoes;
+-- DELETE FROM tblocacoes;
 -- DELETE FROM tbfornecedor;
 -- DELETE FROM tbitenslocacao;
-
-
-drop trigger AttTotalLocacao;
-drop trigger CalcSubtotal;
-drop trigger attDataLimite;
-drop trigger AddFilmeItensLocacao;
