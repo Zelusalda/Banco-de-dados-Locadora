@@ -6,7 +6,7 @@ USE locadora;
 
 CREATE TABLE tbendereco(
 	id_endereco INT auto_increment primary key,
-    CEP varchar(10),
+    CEP varchar(9),
     endereco varchar(100),
     numero INT,
     bairro varchar(50),
@@ -14,7 +14,6 @@ CREATE TABLE tbendereco(
     estado varchar(2) default 'BA',
     pais varchar(20) default 'Brasil'
 );
-
 
 CREATE TABLE
     tbfuncionarios (
@@ -27,15 +26,6 @@ CREATE TABLE
         fk_id_endereco INT,
         FOREIGN KEY (fk_id_endereco) references tbendereco(id_endereco)
     );
-
--- CREATE TABLE
---     tbdependentes (
---         id_dep INT AUTO_INCREMENT PRIMARY KEY,
---         nome VARCHAR (50),
---         cpf VARCHAR(14),
---         fK_mat_func INT,
---         CONSTRAINT fk_mat_func FOREIGN KEY(fk_mat_func) REFERENCES tbfuncionarios(mat_func)
---     );
 
 CREATE TABLE
     tbfornecedor (
@@ -66,7 +56,7 @@ CREATE TABLE
 CREATE TABLE
     tbfilme (
         id_filme INT AUTO_INCREMENT PRIMARY KEY,
-        fk_id_fornecedor VARCHAR(25),
+        fk_id_fornecedor INT,
         titulo VARCHAR(40),
         sinopse VARCHAR(100),
         quantidade INT,
@@ -77,12 +67,6 @@ CREATE TABLE
         FOREIGN KEY (fk_id_fornecedor) REFERENCES tbfornecedor (id_fornecedor)
 );
 
--- CREATE TABLE
---     tbvendafilmes (
---         id_vendafilmes INT PRIMARY KEY,
---         total DECIMAL(10, 2),
---         subtotal DECIMAL(10, 2)
---     );
 
 CREATE TABLE
     tblocacoes(
@@ -439,6 +423,7 @@ DELIMITER ;
 
 /* DROPS */
 -- DROP DATABASE locadora;
+-- DROP TABLE tbendereco;
 -- DROP TABLE tbfuncionarios;
 -- DROP TABLE tbdependentes;
 -- DROP TABLE tbclientes;
