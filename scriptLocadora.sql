@@ -326,13 +326,11 @@ INSERT INTO
 	tbitenslocacao(fk_id_locacao,quantidade_filme)
     VALUES
     (1,1),
-    (2,1),
-    (3,1),
+    (2,2),
+    (3,2),
     (4,1),
     (5,1),
     (6,1);
-
-
 
 -- SELECTS GERAIS
 SELECT * FROM tbendereco;
@@ -360,8 +358,8 @@ WHERE
     data_matricula BETWEEN '2020-01-01' AND '2023-12-31'
 ORDER BY data_matricula;
 
-/* Ver clientes cadastrados que moram em Salvador (CONSULTA IN)*/
-SELECT * FROM tbclientes WHERE endereco IN ('Salvador');
+/* Ver filmes do genêro fantasia (CONSULTA IN)*/
+SELECT * FROM tbfilme WHERE genero IN ('Fantasia');
 
 /* View que mostra todas as locações de filme que já passaram da data de devolução,
  exibindo data de locação, data limite e o id do cliente que locou (VIEW NECESSÁRIA) */
@@ -479,10 +477,10 @@ DELIMITER ;
 -- DROP TABLE tbitenslocacao;
 
 /* DELETE */
+-- DELETE FROM tbendereco;
 -- DELETE FROM tbfuncionarios;
--- DELETE FROM tbdependentes;
 -- DELETE FROM tbclientes;
 -- DELETE FROM tbfilme;
 -- DELETE FROM tblocacoes;
 -- DELETE FROM tbfornecedor;
--- DELETE FROM tbvendafilmes;
+-- DELETE FROM tbitenslocacao;
