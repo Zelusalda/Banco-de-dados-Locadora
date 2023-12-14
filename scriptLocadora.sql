@@ -374,6 +374,7 @@ WHERE data_limite >= now();
 
 SELECT * FROM FilmesAtrasados;
 
+
 /* PROCEDURE DE ENTRADA/INPUT */
 DELIMITER $$
 CREATE PROCEDURE InserirFuncionario(
@@ -385,7 +386,7 @@ CREATE PROCEDURE InserirFuncionario(
     IN p_fk_id_endereco INT
 )
 BEGIN
-    INSERT INTO tbfuncionarios(nome, cpf, email, telefone, data_matricula,p_fk_id_endereco)
+    INSERT INTO tbfuncionarios(nome, cpf, email, telefone, data_matricula,fk_id_endereco)
     VALUES (p_nome, p_cpf, p_email, p_telefone, p_data_matricula,p_fk_id_endereco);
 END $$
 DELIMITER ;
@@ -442,11 +443,12 @@ DELIMITER ;
 
 -- procedure para atualizar status locação
 
+-- view que apresenta endereço dos clientes, funcionários e fornecedores
+
 -- EXECUÇÃO PROCEDURES
 
-
-CALL ObterFilmesLocadosPorId(
-    @id_locacao,
+CALL ObterFilmesLocadosPorID(
+    1,
     @data_locacao,
     @data_limite,
     @status_locacao,
@@ -454,15 +456,14 @@ CALL ObterFilmesLocadosPorId(
     @id_filme,
     @total_locacao
 );
-
-SELECT @id_locacao, @data_locacao, @data_limite, @status_locacao, @id_cliente, @id_filme,@total_locacao;
-
+SELECT @data_locacao, @data_limite, @status_locacao, @id_cliente, @id_filme, @total_locacao;
 
 
-DELIMITER ;
 
 
-DROP PROCEDURE ObterFilmesLocados;
+
+
+DROP PROCEDURE ObterFilmesLocadosPorId;
 
 
 
