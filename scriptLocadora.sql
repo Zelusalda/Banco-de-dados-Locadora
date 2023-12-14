@@ -421,8 +421,22 @@ BEGIN
     WHERE id_locacao = p_id_locacao
     LIMIT 1;
 END $$
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE AtualizarStatusLocacao(
+    IN p_id_locacao INT,
+    IN p_novo_status ENUM('Atrasado', 'Devolvido', 'Locando')
+)
+BEGIN
+    UPDATE tblocacoes
+    SET status_locacao = p_novo_status
+    WHERE id_locacao = p_id_locacao;
+END $$
 
 DELIMITER ;
+
 
 DELIMITER $$
 CREATE TRIGGER AttQuantidadeFilmeLocado
@@ -446,6 +460,25 @@ DELIMITER ;
 -- view que apresenta endereço dos clientes, funcionários e fornecedores
 
 -- EXECUÇÃO PROCEDURES
+
+CALL InserirFuncionario(
+    'Angela Diniz',
+    '12345678901',
+    'angeladiniz22@example.com',
+    '123456789',
+    '2023-01-01',
+    3
+);
+
+CALL AtualizarStatusLocacao(
+    1,
+    'Devolvido'
+);
+
+CALL AtualizarStatusLocacao(
+    2,
+    'Atrasado'
+);
 
 CALL ObterFilmesLocadosPorID(
     1,
