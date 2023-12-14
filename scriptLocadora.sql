@@ -83,24 +83,164 @@ CREATE TABLE
 CREATE TABLE
     tbitenslocacao(
         fk_id_locacao INT,
+        fk_id_filme INT,
         quantidade_filme INT,
         subtotal DECIMAL(10,2),
-        FOREIGN KEY (fk_id_locacao) REFERENCES tblocacoes(id_locacao)
+        FOREIGN KEY (fk_id_locacao) REFERENCES tblocacoes(id_locacao),
+        FOREIGN KEY (fk_id_filme) REFERENCES tbfilme(id_filme)
     );
 
 
--- CREATE TABLE
---     tbfilme_locado (
---         id_filme_locado INT PRIMARY KEY AUTO_INCREMENT,
---         data_locacao DATETIME,
---         data_limite DATETIME,
---         estado ENUM ('Atrasado', 'Devolvido', 'Locando'), /* Pra ver o status do filme locado */
---         fk_id_cli INT,
---         fk_id_filme INT,
---         FOREIGN KEY (fk_id_cli) REFERENCES tbclientes (id_cli),
---         FOREIGN KEY (fk_id_filme) REFERENCES tbfilme (id_filme)
---     );
+DELIMITER $$
+CREATE PROCEDURE ObterFilmesLocadosPorId(
+    IN p_id_locacao INT,
+    OUT p_data_locacao DATETIME,
+    OUT p_data_limite DATETIME,
+    OUT p_status_locacao ENUM('Atrasado', 'Devolvido', 'Locando'),
+    OUT p_fk_id_cliente INT,
+    OUT p_fk_id_filme INT,
+    OUT p_total_locacao DECIMAL(10,2)
+)
+BEGIN
+    SELECT
+        data_locacao,
+        data_limite,
+        status_locacao,
+        fk_id_cliente,
+        fk_id_filme,
+        total_locacao
+    INTO
+        p_data_locacao,
+        p_data_limite,
+        p_status_locacao,
+        p_fk_id_cliente,
+        p_fk_id_filme,
+        p_total_locacao
+    FROM tblocacoes
+    WHERE id_locacao = p_id_locacao
+    LIMIT 1;
+END $$
+DELIMITER ;
 
+DELIMITER $$
+
+CREATE PROCEDURE AtualizarStatusLocacao(
+    IN p_id_locacao INT,
+    IN p_novo_status ENUM('Atrasado', 'Devolvido', 'Locando')
+)
+BEGIN
+    UPDATE tblocacoes
+    SET status_locacao = p_novo_status
+    WHERE id_locacao = p_id_locacao;
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE VerificarMulta(
+    IN p_id_locacao INT,
+    OUT p_nome_cliente VARCHAR(50),
+    OUT p_id_cliente INT,
+    OUT p_total_multa DECIMAL(10,2)
+)
+BEGIN
+    DECLARE data_devolucao DATETIME;
+    DECLARE data_limite DATETIME;
+    DECLARE taxa_dia DECIMAL(10,2);
+    DECLARE quantidade_dias_atraso INT;
+
+    SELECT 
+        c.nome,
+        c.id_cliente,
+        l.data_limite,
+        f.taxa_dia
+    INTO
+        p_nome_cliente,
+        p_id_cliente,
+        data_limite,
+        taxa_dia
+    FROM tblocacoes l
+    JOIN tbclientes c ON l.fk_id_cliente = c.id_cliente
+    JOIN tbfilme f ON l.fk_id_filme = f.id_filme
+    WHERE l.id_locacao = p_id_locacao;
+
+    SET data_devolucao = NOW();
+
+    IF data_devolucao > data_limite THEN
+        SET quantidade_dias_atraso = DATEDIFF(data_devolucao, data_limite);
+        SET p_total_multa = quantidade_dias_atraso * taxa_dia;
+    ELSE
+        SET p_total_multa = 0.0;
+    END IF;
+    
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER AttTotalLocacao
+AFTER INSERT ON tbitenslocacao
+FOR EACH ROW
+BEGIN
+    DECLARE total DECIMAL(10,2);
+
+    SELECT SUM(subtotal) INTO total
+    FROM tbitenslocacao
+    WHERE fk_id_locacao = NEW.fk_id_locacao;
+    
+    UPDATE tblocacoes
+    SET total_locacao = total
+    WHERE id_locacao = NEW.fk_id_locacao;
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER CalcSubtotal
+BEFORE INSERT ON tbitenslocacao
+FOR EACH ROW
+BEGIN
+	DECLARE valorFilme DECIMAL(10,2);
+    
+    SELECT valor_filme INTO valorFilme
+    FROM tbfilme
+    WHERE id_filme = NEW.fk_id_filme;
+
+    SET NEW.subtotal = NEW.quantidade_filme * valorFilme;
+    
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER AddFilmeItensLocacao
+BEFORE INSERT ON tbitenslocacao
+FOR EACH ROW
+BEGIN
+	
+    DECLARE idFilme INT;
+    SELECT fk_id_filme INTO idFilme
+    FROM tblocacoes
+    WHERE id_locacao = NEW.fk_id_locacao;
+
+	SET NEW.fk_id_filme = idFilme;
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER AttDataLimite
+BEFORE INSERT ON tblocacoes
+FOR EACH ROW
+BEGIN
+    SET NEW.data_limite = DATE_ADD(NEW.data_locacao, INTERVAL 10 DAY);
+END $$
+
+DELIMITER ;
 
 
 /* INSERTS */
@@ -170,7 +310,6 @@ VALUES
         6
 	);
     
-
 INSERT INTO
     tbfornecedor(
         CNPJ,
@@ -284,29 +423,29 @@ VALUES
         '14',
         'Aventura'
     ),
-('3', 
-'Harry Potter e A Pedra Filosofal', 
+(
+'Harry Potter e A Pedra Filosofal', 3,
 'Harry Potter descobre que é um bruxo e ingressa na Escola de Magia e Bruxaria de Hogwarts.',
- '30', 
- '24.90', 
- '2.80', 
+ 30, 
+ 24.90, 
+ 2.80, 
  'Livre', 
  'Fantasia'),
-('3', 'Harry Potter and the Goblet of Fire',
+('Harry Potter and the Goblet of Fire', '3',
  'Harry é selecionado inesperadamente para competir no Torneio Tribruxo',
- '20',
- '24.90',
- '2.80',
- '12', 
+ 20,
+ 24.90,
+ 2.80,
+ 12, 
  'Fantasia'),
-('3', 'Harry Potter and the Order of the Phoenix',
+( 'Harry Potter and the Order of the Phoenix', '3',
  'Harry enfrenta a indiferença do Ministério da Magia e forma a Ordem da Fênix para enfrentar o retorno de Lord Voldemort.', 
  '20',
  '24.90',
  '2.80',
  '12',
  'Fantasia'),
-('2', 'Harry Potter and the Half-Blood Prince',
+( 'Harry Potter and the Half-Blood Prince','2',
  'Harry descobre segredos sobre o passado de Voldemort enquanto Hogwarts se prepara para a batalha iminente entre as forças do bem e do mal.',
  '20',
  '24.90',
@@ -314,7 +453,6 @@ VALUES
  '10',
  'Fantasia');
 
-    
 
 INSERT INTO
     tblocacoes(
@@ -323,24 +461,23 @@ INSERT INTO
         fk_id_filme
     )
 VALUES 
-	(current_timestamp(),2, 1), 
-	(current_timestamp(),1, 3), 
-	(current_timestamp(),2, 1),
-	(current_timestamp(),3, 2),
-	(current_timestamp(), 3,2),
-	(current_timestamp(),1, 2),
-    (current_timestamp(),1, 11);
-
+	(current_timestamp(),2, 8), 
+	(current_timestamp(),1, 9), 
+	(current_timestamp(),2, 8),
+	(current_timestamp(),3, 10),
+	(current_timestamp(), 3,12),
+	(current_timestamp(),1, 13),
+    (current_timestamp(),1, 9);
 
 INSERT INTO
 	tbitenslocacao(fk_id_locacao,quantidade_filme)
     VALUES
-    (1,1),
-    (2,2),
-    (3,2),
-    (4,1),
-    (5,1),
-    (6,1);
+    (43,1),
+    (44,2),
+    (45,2),
+    (46,1),
+    (45,2),
+    (45,1);
 
 -- SELECTS GERAIS
 SELECT * FROM tbendereco;
@@ -385,101 +522,15 @@ WHERE data_limite >= now();
 SELECT * FROM FilmesAtrasados;
 
 
-/* PROCEDURE DE ENTRADA/INPUT */
-DELIMITER $$
-CREATE PROCEDURE InserirFuncionario(
-    IN p_nome VARCHAR(50),
-    IN p_cpf VARCHAR(14),
-    IN p_email VARCHAR(60),
-    IN p_telefone VARCHAR(20),
-    IN p_data_matricula DATE,
-    IN p_fk_id_endereco INT
-)
-BEGIN
-    INSERT INTO tbfuncionarios(nome, cpf, email, telefone, data_matricula,fk_id_endereco)
-    VALUES (p_nome, p_cpf, p_email, p_telefone, p_data_matricula,p_fk_id_endereco);
-END $$
-DELIMITER ;
-
-/* PROCEDURE DE SAÍDA/OUTPUT */
-DELIMITER $$
-CREATE PROCEDURE ObterFilmesLocadosPorId(
-    IN p_id_locacao INT,
-    OUT p_data_locacao DATETIME,
-    OUT p_data_limite DATETIME,
-    OUT p_status_locacao ENUM('Atrasado', 'Devolvido', 'Locando'),
-    OUT p_fk_id_cliente INT,
-    OUT p_fk_id_filme INT,
-    OUT p_total_locacao DECIMAL(10,2)
-)
-BEGIN
-    SELECT
-        data_locacao,
-        data_limite,
-        status_locacao,
-        fk_id_cliente,
-        fk_id_filme,
-        total_locacao
-    INTO
-        p_data_locacao,
-        p_data_limite,
-        p_status_locacao,
-        p_fk_id_cliente,
-        p_fk_id_filme,
-        p_total_locacao
-    FROM tblocacoes
-    WHERE id_locacao = p_id_locacao
-    LIMIT 1;
-END $$
-DELIMITER ;
-
-DELIMITER $$
-
-CREATE PROCEDURE AtualizarStatusLocacao(
-    IN p_id_locacao INT,
-    IN p_novo_status ENUM('Atrasado', 'Devolvido', 'Locando')
-)
-BEGIN
-    UPDATE tblocacoes
-    SET status_locacao = p_novo_status
-    WHERE id_locacao = p_id_locacao;
-END $$
-
-DELIMITER ;
-
-
-DELIMITER $$
-CREATE TRIGGER AttQuantidadeFilmeLocado
-AFTER INSERT ON tblocacoes
-FOR EACH ROW
-BEGIN
-    UPDATE tbfilme
-    SET quantidade = quantidade - 1
-    WHERE id_filme = NEW.fk_id_filme;
-END $$
-
-DELIMITER ;
-
 -- A FAZER
--- TRIGGER PARA ATUALIZAR TOTAL LOCAÇÃO
-
--- trigger para atualizar subtotal
-
--- TRIGGER PARA ATUALIZAR DATA LIMITE LOCAÇÃO
-
 -- view que apresenta endereço dos clientes, funcionários e fornecedores
+
 
 
 -- EXECUÇÃO PROCEDURES
 
-CALL InserirFuncionario(
-    'Angela Diniz',
-    '12345678901',
-    'angeladiniz22@example.com',
-    '123456789',
-    '2023-01-01',
-    3
-);
+CALL VerificarMulta(1, @nome_cliente, @id_cliente, @total_multa);
+SELECT @nome_cliente AS nome_cliente, @id_cliente AS id_cliente, @total_multa AS total_multa;
 
 CALL AtualizarStatusLocacao(
     1,
@@ -504,6 +555,7 @@ SELECT @data_locacao, @data_limite, @status_locacao, @id_cliente, @id_filme, @to
 
 
 
+
 /* DANGER ZONE */
 
 /* DROPS */
@@ -522,6 +574,12 @@ SELECT @data_locacao, @data_limite, @status_locacao, @id_cliente, @id_filme, @to
 -- DELETE FROM tbfuncionarios;
 -- DELETE FROM tbclientes;
 -- DELETE FROM tbfilme;
--- DELETE FROM tblocacoes;
+--- DELETE FROM tblocacoes;
 -- DELETE FROM tbfornecedor;
 -- DELETE FROM tbitenslocacao;
+
+
+drop trigger AttTotalLocacao;
+drop trigger CalcSubtotal;
+drop trigger attDataLimite;
+drop trigger AddFilmeItensLocacao;
