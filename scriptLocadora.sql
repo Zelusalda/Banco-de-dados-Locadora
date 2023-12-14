@@ -116,7 +116,8 @@ SELECT * FROM ViewEnderecosFornecedores;
 -- EXECUÇÃO PROCEDURES
 
 CALL VerificarMulta(1, @nome_cliente, @id_cliente, @total_multa);
-SELECT @nome_cliente AS nome_cliente, @id_cliente AS id_cliente, @total_multa AS total_multa;
+SELECT @nome_cliente AS nome_cliente, @id_cliente 
+AS id_cliente, @total_multa AS total_multa;
 
 CALL AtualizarStatusLocacao(
     1,
