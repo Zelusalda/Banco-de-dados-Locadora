@@ -65,7 +65,11 @@ VALUES
         '71985652311',
         '2018-05-06',
         6
-	);
+	),
+    ('Murilo Goes', '78965412333', 'murilogoes87@gmail.com', '71985621247', '2018-02-02', '6'),
+	('Melanie Silva', '71456789955', 'melaniesilva14@gmail.com', '71987452136', '2018-09-01', '7');
+
+    
     
 INSERT INTO
     tbfornecedor(
@@ -221,9 +225,9 @@ VALUES
 	(current_timestamp(),1, 9), 
 	(current_timestamp(),2, 8),
 	(current_timestamp(),3, 10),
-	(current_timestamp(), 3,12),
-	(current_timestamp(),1, 13),
-    (current_timestamp(),1, 9);
+	('2023-12-01 17:20:02', 3,12),
+	('2023-12-01 14:12:05',1, 13),
+    ('2023-12-01 15:24:06',1, 9);
 
 INSERT INTO
 	tbitenslocacao(fk_id_locacao,quantidade_filme)
