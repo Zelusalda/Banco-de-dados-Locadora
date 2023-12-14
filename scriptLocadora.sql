@@ -463,6 +463,8 @@ DELIMITER ;
 -- A FAZER
 -- TRIGGER PARA ATUALIZAR TOTAL LOCAÇÃO
 
+-- trigger para atualizar subtotal
+
 -- TRIGGER PARA ATUALIZAR DATA LIMITE LOCAÇÃO
 
 -- view que apresenta endereço dos clientes, funcionários e fornecedores
