@@ -368,18 +368,11 @@ SELECT * FROM tbfilme WHERE genero IN ('Fantasia');
 	id_locacao,
     date(data_locacao) as 'Data de Locação',
     date(data_limite) as 'Data Limite',
-    fk_id_cli as 'Id Cliente'
+    fk_id_cliente as 'Id Cliente'
 FROM tblocacoes
 WHERE data_limite >= now();
 
 SELECT * FROM FilmesAtrasados;
-
--- atualizo data limite
--- armazeno data limite
--- atualizo status como atrasado onde data agora for maior que data limite
--- atualizo status como devolvido manualmente 
--- atualizado status locando como padrão
-
 
 /* PROCEDURE DE ENTRADA/INPUT */
 DELIMITER //
